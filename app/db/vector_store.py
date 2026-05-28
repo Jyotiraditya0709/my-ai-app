@@ -6,7 +6,7 @@ import asyncpg
 
 import os
 import json 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -18,9 +18,9 @@ class SearchResult:
     id: int
     text: str 
     source: str 
-    chunk_index: str 
+    chunk_index: int
     similarity: float
-    metadata: dict
+    metadata: dict = field(default_factory=dict)
 
 #------Vector store class------------
 class VectorStore:
