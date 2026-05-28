@@ -3,6 +3,7 @@ import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from unittest.mock import AsyncMock
 from app.main import app
+from unittest.mock import AsyncMock, MagicMock 
 
 #---------- FIXTURE 1: Client--------------------
 @pytest_asyncio.fixture
@@ -18,13 +19,14 @@ async def client():
 #------FIXTURE 2: mock_llm -------------------
 @pytest.fixture
 def mock_llm(monkeypatch):
+    from app.core.llm import LLMClient
 
-    mock = AsyncMock(return_value="Mocked LLM response")
+    llm_response = MagicMock()
+    llm_response.content = "Mocked LLM response"
+    llm_response.cost_usd = 0.0001
 
-    monkeypatch.setattr("app.core.llm.call_openai", mock)
-
-    monkeypatch.setattr("app.core.llm.call_anthropic", mock)
-
+    mock = AsyncMock(return_value=llm_response)
+    monkeypatch.setattr(LLMClient, "complete", mock)
     return mock
 
 

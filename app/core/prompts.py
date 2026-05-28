@@ -1,5 +1,6 @@
 from app.core.llm import LLMResponse
 from textwrap import dedent
+from app.db.vector_store import SearchResult
 
 def summarize_for_engineer(article: str) -> str:
     """Returns a prompt that asks a concise engineering-focused summary."""
@@ -145,3 +146,31 @@ def extract_with_schema(text:str, schema_description: str)-> str:
         Rewrite the draft addressing every issue.
         Do not defend the original — just fix it.
     """).strip()
+
+def rag_with_citations(question:str, chunks: list[SearchResult]) -> str:
+    """Build a citiation-aware prompt. Each chunk becomes a numberd source."""
+    formatted = []
+    for i, chunk in enumerate(chunks, start=1):
+        source_lable = chunk.source
+        if hasattr(chunk, "chunk_index"):
+            source_lable = f"{chunk.source}, chunk {chunk.chunk_index}"
+        formatted.append(f"[{i}] ({source_lable}) \\n {chunk.text}")
+
+        context_block = "\n\n".join(formatted)
+
+    return dedent(f"""
+            You are answering question based on provided context.
+            
+            Rules:
+            - Use only the context below.
+            - Cite sources in square brackets like [1], [2] after each claim.
+            - If context doesn't contain the answer,
+            say "I don't know based on the provided context."
+            - Be conciese: 2-4 sentences.
+
+            Context: 
+            {context_block}
+
+            Answer:
+
+            """).strip()
