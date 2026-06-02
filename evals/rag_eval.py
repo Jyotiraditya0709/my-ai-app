@@ -107,7 +107,7 @@ Context:
 Answer:
 {answer}
 
-verdict: supported / partial / unsupported. List unsupported claims."""
+verdict:  supported / partial / unsupported. List unsupported claims."""
 
     return await rag.llm.complete_structured(prompt, schema=FaithfulnessVerdict)
 
