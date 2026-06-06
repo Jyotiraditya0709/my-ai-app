@@ -40,6 +40,29 @@ GOLDEN = [
         ["event loop", "concurrent"],
         "sample_doc.md",
     ),
+    RAGEvalCase("How does Pydantic validation work?",
+                ["validation"], "sample_doc.md"),
+    RAGEvalCase("What does dependency injection do?",
+                ["depends"], "sample_doc.md"),
+    RAGEvalCase("How does the async event loop handle requests?",
+                ["event loop"], "sample_doc.md"),
+
+    # Code questions over your own chunker.py
+    RAGEvalCase("What does fixed_size_chunks do?",
+                ["chunks", "tokens"], "app/core/chunker.py"),
+    RAGEvalCase("How does recursive_chunks decide where to split?",
+                ["separator", "split"], "app/core/chunker.py"),
+    RAGEvalCase("How does chunk_python_file handle syntax errors?",
+                ["fallback", "recursive"], "app/core/chunker.py"),
+
+    # Mixed / hard
+    RAGEvalCase("How are chunks stored in pgvector?",
+                ["embedding", "vector"], "app/core/chunker.py"),  # crossover
+
+    # Refusal cases
+    RAGEvalCase("What's the boiling point of mercury?", [], "", should_refuse=True),
+    RAGEvalCase("Who won the 2024 Super Bowl?", [], "", should_refuse=True),
+
     RAGEvalCase(
         "What is the recipe for chocolate cake?",
         [],           # no facts expected — this should be refused
@@ -163,5 +186,5 @@ async def main():
 
     await rag.store.delete_by_source("sample_doc.md")
     await rag.store.close()
-
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
