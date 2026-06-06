@@ -34,9 +34,8 @@ async def main():
     # ingest doc
     with open("data/sample_doc.md") as f:
         await rag.ingest(f.read(), source="sample_doc.md")
-
     with open("app/core/chunker.py") as f:
-        await rag.ingest(f.read(), source="chunker.py")
+        await rag.ingest_code(f.read(), file_path="app/core/chunker.py")
 
         async def baseline(q, top_k):
             qv = await rag.embedder.embed_one(q)
