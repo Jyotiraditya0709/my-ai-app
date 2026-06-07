@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional
 from app.core.llm import llm
+from app.api.query import router as query_router
+import os
 
 app = FastAPI(title="Day 3 AI API", version="0.1.0")
 
@@ -82,3 +85,34 @@ async def stream(req: QueryRequest):
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
+
+app=FastAPI(
+    title="Codebase Onboarding Assistant",
+    description="Ask question about indexed codebases.",
+    version="1.0.0",
+)
+
+
+#----CORS CONFIGURATION---------
+allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://localhost:3000",
+
+).split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in allowed_origins],
+    allow_credentials=True,
+    allow_methods=["GET","POST"],
+    allow_headers=["*"],
+)
+
+app.include_router(query_router)
+
+@app.get("/")
+async def root():
+    return {
+        "app": "Codebase Onboarding Assitant",
+        "docs": "/docs",
+    }
